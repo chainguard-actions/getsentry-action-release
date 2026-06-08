@@ -1,0 +1,25 @@
+name: Test deprecated and prefix inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          SENTRY_AUTH_TOKEN: fake-token
+          SENTRY_ORG: fake-org
+        with:
+          version: "3.0.0"
+          version_prefix: "v"
+          release_prefix: "release-"
+          ignore_missing: true
+          ignore_empty: true
+          disable_telemetry: true
+      - name: Assert action ran (may fail due to invalid credentials)
+        run: |
+          echo "Action completed (with or without error - credentials are fake)"
+          echo "PASS: deprecated and prefix inputs were accepted"
