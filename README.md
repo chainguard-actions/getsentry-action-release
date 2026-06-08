@@ -8,6 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
+| v3.5.0 | [`v3.5.0`](https://github.com/chainguard-actions/getsentry-action-release/tree/v3.5.0) | [`dab6548`](https://github.com/getsentry/action-release/commit/dab6548b3c03c4717878099e43782cf5be654289) |
 | v3.6.0 | [`v3.6.0`](https://github.com/chainguard-actions/getsentry-action-release/tree/v3.6.0) | [`5657c9e`](https://github.com/getsentry/action-release/commit/5657c9e888b4e2cc85f4d29143ea4131fde4a73a) |
 
 ## Privacy
