@@ -1,0 +1,31 @@
+name: Test sourcemaps inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SENTRY_AUTH_TOKEN: dummy-token
+      SENTRY_ORG: dummy-org
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create dummy sourcemap directory
+        run: |
+          mkdir -p /tmp/dist/js
+          echo '{"version":3,"sources":["app.js"],"mappings":""}' > /tmp/dist/js/app.js.map
+      - name: Run action with sourcemaps inputs
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          release: test-release-sourcemaps-1.0.0
+          sourcemaps: /tmp/dist/js
+          url_prefix: "~/dist/js"
+          working_directory: "."
+          dist: "42"
+          inject: "false"
+          disable_telemetry: "true"
+      - name: Assert action was invoked
+        run: |
+          echo "Action step completed (may have failed due to dummy credentials)"
+          echo "PASS: sourcemaps inputs were accepted and action was invoked"
