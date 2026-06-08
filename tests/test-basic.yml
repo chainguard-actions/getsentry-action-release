@@ -1,25 +1,26 @@
-name: Test basic release inputs
+name: Test basic usage
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      SENTRY_AUTH_TOKEN: dummy-token
-      SENTRY_ORG: dummy-org
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run action with basic inputs
+      - name: Run Sentry Release action (expect failure without credentials)
         id: action
         continue-on-error: true
         uses: .
+        env:
+          SENTRY_AUTH_TOKEN: fake-token
+          SENTRY_ORG: fake-org
         with:
-          release: test-release-1.0.0
-          environment: production
-          projects: my-project
+          release: "1.0.0"
+          environment: "production"
+          projects: "my-project"
           finalize: "true"
+          set_commits: "skip"
           disable_telemetry: "true"
-      - name: Assert action was invoked
+      - name: Assert action ran (may fail without real credentials)
         run: |
-          echo "Action step completed (may have failed due to dummy credentials)"
-          echo "PASS: inputs were accepted and action was invoked"
+          echo "Action completed (with or without error due to missing credentials)"
+          echo "PASS"

@@ -1,4 +1,4 @@
-name: Test sourcemaps inputs
+name: Test manual commits inputs
 on:
   workflow_dispatch:
 jobs:
@@ -6,9 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create dummy sourcemap directory
-        run: mkdir -p /tmp/sourcemaps
-      - name: Run Sentry Release action with sourcemaps inputs (expect failure without credentials)
+      - name: Run Sentry Release action with manual commit inputs (expect failure without credentials)
         id: action
         continue-on-error: true
         uses: .
@@ -16,14 +14,16 @@ jobs:
           SENTRY_AUTH_TOKEN: fake-token
           SENTRY_ORG: fake-org
         with:
-          release: "1.0.0"
-          sourcemaps: "/tmp/sourcemaps"
-          url_prefix: "~/static/js"
-          strip_common_prefix: "true"
-          dist: "42"
-          inject: "false"
-          working_directory: "."
-          set_commits: "skip"
+          version: "1.0.0"
+          version_prefix: "prefix-"
+          release_prefix: "rel-"
+          set_commits: "manual"
+          repo: "my-org/my-repo"
+          commit: "abc1234567890abcdef1234567890abcdef12345"
+          previous_commit: "def4567890abcdef1234567890abcdef12345678"
+          started_at: "1609459200"
+          ignore_missing: "true"
+          ignore_empty: "true"
           disable_telemetry: "true"
       - name: Assert action ran (may fail without real credentials)
         run: |
