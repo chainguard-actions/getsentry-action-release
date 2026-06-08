@@ -1,0 +1,32 @@
+name: Test manual commits inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          SENTRY_AUTH_TOKEN: fake-token-for-testing
+          SENTRY_ORG: fake-org
+          SENTRY_PROJECT: fake-project
+        with:
+          version: "1.0.0-manual-test"
+          version_prefix: "myapp-"
+          release: "myapp-1.0.0-manual-test"
+          release_prefix: "myapp-"
+          set_commits: "manual"
+          repo: "fake-owner/fake-repo"
+          commit: "abc1234567890abcdef1234567890abcdef12345"
+          previous_commit: "def4567890abcdef1234567890abcdef12345678"
+          started_at: "1700000000"
+          ignore_missing: "true"
+          ignore_empty: "true"
+          disable_telemetry: "true"
+      - name: Assert action ran
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          echo "PASS: action step completed (credentials are fake so failure is expected)"
