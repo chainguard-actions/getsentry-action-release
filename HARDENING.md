@@ -14,11 +14,11 @@ Action **getsentry--action-release/v3.7.0** was hardened automatically. 1 findin
 
 ### unpinned-uses (severity: high)
 
-The action.yml references a Docker image using a mutable version tag instead of an immutable SHA digest. The step 'Run docker image' uses `docker://ghcr.io/getsentry/action-release-image:3.7.0` — the tag `:3.7.0` can be overwritten at any time, making this a supply-chain risk. It should be pinned to a SHA digest, e.g. `docker://ghcr.io/getsentry/action-release-image@sha256:<64-hex-char-digest>`.
+The composite action step 'Run docker image' references a Docker image using a mutable version tag (`3.7.0`) instead of an immutable SHA digest. This means the image could be replaced with a different (potentially malicious) version without changing the action reference. It should be pinned to a SHA digest, e.g. `docker://ghcr.io/getsentry/action-release-image@sha256:<64-hex-char-digest>`.
 
 Locations:
 
-- `action.yml:143`
+- `action.yml:131`
 
 ## Iteration Notes
 
@@ -28,5 +28,5 @@ Locations:
 
 **Notes:**
 
-Replaced the mutable Docker image tag `ghcr.io/getsentry/action-release-image:3.7.0` with the immutable SHA256 digest `ghcr.io/getsentry/action-release-image@sha256:3d8999c5962c55691cf509b9cc2ebd9d889a398f58a46337992aab4f1645ec7b # 3.7.0` in action.yml at line 143. The original tag is preserved as a comment for readability.
+Pinned the Docker image reference at action.yml line 131 from `docker://ghcr.io/getsentry/action-release-image:3.7.0` to `docker://ghcr.io/getsentry/action-release-image@sha256:3d8999c5962c55691cf509b9cc2ebd9d889a398f58a46337992aab4f1645ec7b # 3.7.0` using the immutable SHA digest resolved via the Docker Registry API.
 
