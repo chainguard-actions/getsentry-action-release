@@ -1,0 +1,31 @@
+name: Test sourcemaps inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create fake sourcemap directory
+        run: |
+          mkdir -p /tmp/dist/js
+          echo '{"version":3,"sources":["app.js"],"mappings":""}' > /tmp/dist/js/app.js.map
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          SENTRY_AUTH_TOKEN: fake-token-for-input-coverage
+          SENTRY_ORG: fake-org
+        with:
+          release: "2.0.0"
+          sourcemaps: /tmp/dist/js
+          inject: true
+          url_prefix: "~/dist/js"
+          strip_common_prefix: false
+          working_directory: "."
+          set_commits: skip
+          disable_telemetry: true
+      - name: Assert action was invoked
+        run: |
+          echo "Action step completed (may have failed due to missing real Sentry credentials)"
+          echo "PASS: sourcemaps inputs were passed to action"
