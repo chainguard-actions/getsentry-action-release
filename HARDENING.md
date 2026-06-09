@@ -14,13 +14,11 @@ Action **getsentry--action-release/v3.6.1** was hardened automatically. 1 findin
 
 ### unpinned-uses (severity: high)
 
-The action.yml references a Docker image using a mutable version tag instead of an immutable SHA digest. `uses: docker://ghcr.io/getsentry/action-release-image:3.6.1` can be silently replaced by a different image if the tag is overwritten in the registry, enabling a supply-chain attack. It should be pinned to a SHA digest, e.g. `docker://ghcr.io/getsentry/action-release-image@sha256:<64-hex-char-digest>`.
-
-Note: The two `actions/setup-node` references are correctly pinned to SHA `53b83947a5a98c8d113130e565377fae1a50d02f` and are not a concern.
+The composite action step 'Run docker image' references a Docker image using a mutable version tag ('3.6.1') instead of an immutable SHA digest. This means the image could be silently replaced with a different (potentially malicious) version without any change to the action.yml file. The reference `uses: docker://ghcr.io/getsentry/action-release-image:3.6.1` should be replaced with a SHA-pinned form such as `uses: docker://ghcr.io/getsentry/action-release-image@sha256:<64-hex-char-digest>`. Note: the two `actions/setup-node` references are correctly pinned to SHA `53b83947a5a98c8d113130e565377fae1a50d02f`.
 
 Locations:
 
-- `action.yml:148`
+- `action.yml:138`
 
 ## Iteration Notes
 
@@ -30,5 +28,5 @@ Locations:
 
 **Notes:**
 
-Replaced the mutable Docker image tag `ghcr.io/getsentry/action-release-image:3.6.1` with the immutable SHA digest `ghcr.io/getsentry/action-release-image@sha256:963c9e205ca7ebf35b5204a50462108ff456b8aab98d04729a15a0b668c3beb4 # 3.6.1` in action.yml at line 148. The two `actions/setup-node` references were already correctly pinned and required no changes.
+Replaced the mutable Docker image tag reference `docker://ghcr.io/getsentry/action-release-image:3.6.1` with the immutable SHA digest `docker://ghcr.io/getsentry/action-release-image@sha256:963c9e205ca7ebf35b5204a50462108ff456b8aab98d04729a15a0b668c3beb4 # 3.6.1` in action.yml at line 138. The original tag is preserved as a comment for readability.
 
