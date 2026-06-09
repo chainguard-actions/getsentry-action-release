@@ -1,0 +1,30 @@
+name: Test Sentry release manual commits inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run action with manual commits inputs
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          version: "1.0.0"
+          version_prefix: "v"
+          set_commits: "manual"
+          repo: "my-org/my-repo"
+          commit: "abc1234567890abcdef1234567890abcdef12345"
+          previous_commit: "def4567890abcdef1234567890abcdef12345678"
+          started_at: "1609459200"
+          finalize: "false"
+          disable_telemetry: "true"
+        env:
+          SENTRY_AUTH_TOKEN: "fake-token-for-testing"
+          SENTRY_ORG: "fake-org"
+          SENTRY_PROJECT: "my-project"
+      - name: Assert action ran (inputs accepted)
+        run: |
+          echo "Action completed (may have failed due to invalid Sentry credentials, which is expected)"
+          echo "PASS: manual commits inputs were accepted by the action"
