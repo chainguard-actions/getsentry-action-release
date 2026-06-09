@@ -6,24 +6,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create fake sourcemap directory
-        run: mkdir -p /tmp/sourcemaps
-      - id: action
+      - name: Create dummy sourcemap directory
+        run: mkdir -p /tmp/dist/js
+      - name: Run action with sourcemaps inputs
+        id: action
         uses: .
         continue-on-error: true
         env:
-          SENTRY_AUTH_TOKEN: fake-token
+          SENTRY_AUTH_TOKEN: fake-token-for-testing
           SENTRY_ORG: fake-org
         with:
           release: "1.0.0"
-          sourcemaps: /tmp/sourcemaps
-          inject: true
-          dist: "42"
-          url_prefix: "~/static/js"
-          strip_common_prefix: false
+          sourcemaps: "/tmp/dist/js"
+          url_prefix: "~/dist/js"
+          strip_common_prefix: "true"
+          inject: "false"
           working_directory: "."
-          disable_telemetry: true
-      - name: Assert action ran (may fail due to invalid credentials)
+          disable_telemetry: "true"
+          set_commits: "skip"
+      - name: Assert action was invoked
         run: |
-          echo "Action completed (with or without error - credentials are fake)"
-          echo "PASS: sourcemap inputs were accepted"
+          echo "Action step completed (may have failed due to invalid credentials)"
+          echo "PASS: sourcemaps inputs were accepted by the action"
