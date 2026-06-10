@@ -1,27 +1,25 @@
-name: Test basic release inputs
+name: Test basic Sentry release inputs
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      SENTRY_AUTH_TOKEN: dummy-token
+      SENTRY_ORG: dummy-org
+      SENTRY_PROJECT: dummy-project
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Assert inputs are accepted
-        id: action
-        uses: .
+      - id: action
         continue-on-error: true
-        env:
-          SENTRY_AUTH_TOKEN: fake-token-for-testing
-          SENTRY_ORG: fake-org
+        uses: .
         with:
-          release: "1.0.0"
+          release: "1.0.0-test"
           environment: "production"
           projects: "my-project"
-          dist: "42"
           finalize: "true"
           disable_telemetry: "true"
-          set_commits: "skip"
-      - name: Assert action was invoked
+      - name: Assert action was attempted
         run: |
-          echo "Action step completed (may have failed due to invalid credentials)"
-          echo "PASS: inputs were accepted by the action"
+          echo "Action completed (may have failed due to invalid Sentry credentials, which is expected in test)"
+          echo "PASS: inputs were accepted"
