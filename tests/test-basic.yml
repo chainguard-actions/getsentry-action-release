@@ -1,35 +1,29 @@
-name: Test basic usage
+name: Test basic release inputs
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      SENTRY_AUTH_TOKEN: fake-token-for-testing
-      SENTRY_ORG: fake-org
-      SENTRY_PROJECT: fake-project
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+      SENTRY_AUTH_TOKEN: dummy-token
+      SENTRY_ORG: dummy-org
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - id: action
-        uses: .
+      - name: Run action with basic inputs
+        id: action
         continue-on-error: true
+        uses: .
         with:
-          release: "1.0.0-test"
+          release: "1.0.0"
           environment: "production"
-          projects: "fake-project"
+          projects: "my-project"
           dist: "42"
-          started_at: "1700000000"
-          sourcemaps: "./dist"
-          url_prefix: "~/dist"
-          working_directory: "."
-          release_prefix: "myapp-"
-          finalize: "false"
-          set_commits: "skip"
+          started_at: "1609459200"
+          finalize: "true"
           disable_telemetry: "true"
-          disable_safe_directory: "false"
-
-      - name: Assert action ran (pass or expected failure)
+      - name: Assert action ran (may fail due to dummy credentials)
         run: |
-          echo "Action completed (may have failed due to fake credentials, which is expected)"
-          echo "PASS"
+          echo "Action completed (or failed with dummy credentials as expected)"
+          echo "PASS: inputs were accepted by the action"

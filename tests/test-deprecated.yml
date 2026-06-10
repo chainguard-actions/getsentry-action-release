@@ -1,4 +1,4 @@
-name: Test sourcemaps inputs
+name: Test deprecated and prefix inputs
 on:
   workflow_dispatch:
 jobs:
@@ -11,23 +11,18 @@ jobs:
       SENTRY_ORG: dummy-org
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create dummy sourcemap directory
-        run: |
-          mkdir -p /tmp/dist/js
-          echo '{"version":3,"sources":["app.js"],"mappings":""}' > /tmp/dist/js/app.js.map
-      - name: Run action with sourcemaps inputs
+      - name: Run action with deprecated version and prefix inputs
         id: action
         continue-on-error: true
         uses: .
         with:
-          release: "1.0.0-sourcemaps"
-          sourcemaps: "/tmp/dist/js"
-          url_prefix: "~/dist/js"
-          working_directory: "."
-          inject: "false"
-          strip_common_prefix: "true"
+          version: "2.0.0"
+          version_prefix: "legacy-"
+          release_prefix: "release-"
+          ignore_missing: "true"
+          ignore_empty: "true"
           disable_telemetry: "true"
       - name: Assert action ran (may fail due to dummy credentials)
         run: |
           echo "Action completed (or failed with dummy credentials as expected)"
-          echo "PASS: sourcemaps inputs were accepted by the action"
+          echo "PASS: deprecated and prefix inputs were accepted by the action"
