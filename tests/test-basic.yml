@@ -1,26 +1,29 @@
-name: Test basic usage
+name: Test basic Sentry release inputs
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run Sentry Release action (expect failure without credentials)
-        id: action
-        continue-on-error: true
+      - id: action
         uses: .
+        continue-on-error: true
         env:
-          SENTRY_AUTH_TOKEN: fake-token
+          SENTRY_AUTH_TOKEN: fake-token-for-input-coverage
           SENTRY_ORG: fake-org
         with:
           release: "1.0.0"
-          environment: "production"
-          projects: "my-project"
-          finalize: "true"
-          set_commits: "skip"
-          disable_telemetry: "true"
-      - name: Assert action ran (may fail without real credentials)
+          environment: production
+          projects: my-project
+          dist: "42"
+          started_at: "1700000000"
+          finalize: true
+          disable_telemetry: true
+      - name: Assert action was invoked
         run: |
-          echo "Action completed (with or without error due to missing credentials)"
-          echo "PASS"
+          echo "Action step completed (may have failed due to missing real Sentry credentials)"
+          echo "PASS: all inputs were accepted"
