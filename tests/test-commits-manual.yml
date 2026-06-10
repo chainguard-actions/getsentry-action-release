@@ -1,4 +1,4 @@
-name: Test sourcemaps inputs
+name: Test manual commit inputs
 on:
   workflow_dispatch:
 jobs:
@@ -6,9 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create dummy sourcemap directory
-        run: mkdir -p /tmp/dist/js
-      - name: Run action with sourcemap inputs
+      - name: Run action with manual commit inputs
         id: action
         continue-on-error: true
         uses: .
@@ -16,14 +14,13 @@ jobs:
           SENTRY_AUTH_TOKEN: fake-token-for-testing
           SENTRY_ORG: fake-org
         with:
-          release: "1.0.0-sourcemaps-test"
-          sourcemaps: "/tmp/dist/js"
-          url_prefix: "~/dist/js"
-          strip_common_prefix: "true"
-          working_directory: "."
-          dist: "42"
+          release: "1.0.0-commits-test"
+          set_commits: "manual"
+          repo: "my-org/my-repo"
+          commit: "abc1234567890abcdef1234567890abcdef12345"
+          previous_commit: "def4567890abcdef1234567890abcdef12345678"
+          started_at: "1700000000"
           disable_telemetry: "true"
-          inject: "false"
       - name: Assert action ran (may fail due to invalid credentials)
         run: |
           echo "Action outcome: ${{ steps.action.outcome }}"
