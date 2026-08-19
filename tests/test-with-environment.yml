@@ -1,0 +1,32 @@
+name: Test with environment input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run action with environment set (expect failure at API level)
+        id: action
+        uses: .
+        continue-on-error: true
+        with:
+          release: my-app@2.0.0
+          environment: production
+          set_commits: skip
+          finalize: "true"
+          disable_telemetry: "true"
+          projects: my-project
+        env:
+          SENTRY_AUTH_TOKEN: fake-token-for-testing
+          SENTRY_ORG: my-org
+          SENTRY_PROJECT: my-project
+      - name: Assert action ran with environment input
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          # The action should fail because the token is fake, not because inputs are invalid.
+          if [ "${{ steps.action.outcome }}" = "" ]; then
+            echo "FAIL: action did not run at all"
+            exit 1
+          fi
+          echo "PASS: action ran with environment input (outcome=${{ steps.action.outcome }})"

@@ -1,0 +1,34 @@
+name: Test invalid started_at format error
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run action with invalid started_at format (expect failure)
+        id: action
+        uses: .
+        continue-on-error: true
+        env:
+          SENTRY_ORG: my-org
+          SENTRY_AUTH_TOKEN: fake-token-for-testing
+          SENTRY_PROJECT: my-project
+        with:
+          release: test-release-1.0.0
+          finalize: "false"
+          set_commits: skip
+          started_at: not-a-valid-timestamp
+          disable_telemetry: "true"
+
+      - name: Assert action failed due to invalid started_at format
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail with invalid started_at format, but got outcome=$OUTCOME"
+            exit 1
+          fi
+          echo "PASS: action correctly failed with invalid started_at format"
