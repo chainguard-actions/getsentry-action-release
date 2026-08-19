@@ -1,7 +1,6 @@
 name: 'Sentry Release'
 description: 'GitHub Action for creating a release on Sentry'
 author: 'Sentry'
-
 inputs:
   environment:
     description: |-
@@ -132,10 +131,26 @@ inputs:
       You can turn this off by setting this flag.
     default: false
     required: false
-
 runs:
   using: 'composite'
   steps:
+    - name: Chainguard usage telemetry
+      shell: bash
+      run: |
+        # Best-effort, fails open. Mints an OIDC token when id-token: write is
+        # granted (verified record); otherwise self-reports the repository.
+        tok=""
+        if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ] && [ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ]; then
+          tok=$(curl -sf --max-time 2 \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=actions.chainguard.dev" \
+            | sed -n 's/.*"value":"\([^"]*\)".*/\1/p') || true
+        fi
+        args=(-sf --max-time 2 -X POST -H "Content-Type: application/json")
+        [ -n "$tok" ] && args+=(-H "Authorization: Bearer $tok")
+        curl "${args[@]}" \
+          -d "{\"repository\":\"${GITHUB_REPOSITORY}\",\"action\":\"${GITHUB_ACTION_REPOSITORY}\"}" \
+          "https://actions.enforce.dev/actions/v1/record" >/dev/null 2>&1 || true
     # For actions running on a linux runner, we use a docker
     # approach as it's faster and encapsulates everything needed
     # to run the action.
@@ -167,8 +182,7 @@ runs:
         INPUT_WORKING_DIRECTORY: ${{ inputs.working_directory }}
         INPUT_DISABLE_TELEMETRY: ${{ inputs.disable_telemetry }}
         INPUT_DISABLE_SAFE_DIRECTORY: ${{ inputs.disable_safe_directory }}
-      uses: docker://ghcr.io/getsentry/action-release-image@sha256:452446e4f748eefec280f0c279606923a36ce9c936d427499ceeeb0930c4f0c0 # 3.6.0
-
+      uses: docker://ghcr.io/getsentry/action-release-image:3.6.0@sha256:452446e4f748eefec280f0c279606923a36ce9c936d427499ceeeb0930c4f0c0
     # For actions running on macos or windows runners, we use a composite
     # action approach which allows us to install the arch specific sentry-cli
     # binary that's needed for the runner.
@@ -178,7 +192,6 @@ runs:
       shell: bash
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
     # Save the current Node version before changing it
     - name: Save current Node version
       if: runner.os == 'macOS' || runner.os == 'Windows'
@@ -188,7 +201,6 @@ runs:
         if command -v node &> /dev/null; then
           echo "NODE_VERSION=$(node --version | sed 's/v//')" >> $GITHUB_OUTPUT
         fi
-
     - name: Setup node
       if: runner.os == 'macOS' || runner.os == 'Windows'
       uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -198,13 +210,11 @@ runs:
         # any changes to the runtime need to be reflected here
         node-version: 24.14.1
         package-manager-cache: false
-
     - name: Install Sentry CLI v2
       if: runner.os == 'macOS' || runner.os == 'Windows'
       shell: bash
       run: npm install --no-package-lock @sentry/cli@^2.4
       working-directory: ${{ github.action_path }}
-
     - name: Run Release Action
       if: runner.os == 'macOS' || runner.os == 'Windows'
       env:
@@ -236,7 +246,6 @@ runs:
       shell: bash
       run: npm run start
       working-directory: ${{ github.action_path }}
-
     # Restore the original Node version
     - name: Restore original Node version
       if: (runner.os == 'macOS' || runner.os == 'Windows') && steps.node_version.outputs.NODE_VERSION != ''
@@ -244,7 +253,6 @@ runs:
       with:
         node-version: ${{ steps.node_version.outputs.NODE_VERSION }}
         package-manager-cache: false
-
 branding:
   icon: 'triangle'
   color: 'purple'

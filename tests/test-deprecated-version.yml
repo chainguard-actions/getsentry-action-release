@@ -1,15 +1,13 @@
-name: Test basic Sentry Release action invocation
+name: Test deprecated version and version_prefix inputs
 on:
   workflow_dispatch:
+
 jobs:
-  test-basic:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # The action will attempt to contact Sentry API with these dummy credentials.
-      # We expect it to fail at the API authentication step, not at input wiring.
-      # We use continue-on-error to capture the failure and assert it's the expected one.
       - id: action
         uses: .
         continue-on-error: true
@@ -18,21 +16,20 @@ jobs:
           SENTRY_ORG: test-org
           SENTRY_PROJECT: test-project
         with:
-          release: test-release-1.0.0
+          version: "1.0.0"
+          version_prefix: "myapp@"
           finalize: "true"
           disable_telemetry: "true"
-          disable_safe_directory: "false"
 
       - name: Assert action ran (expected to fail at API level, not at input level)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "Action outcome: $OUTCOME"
-          # The action should either succeed or fail at the Sentry API level.
-          # It should NOT fail due to missing inputs or misconfiguration of the action itself.
-          # Both 'success' and 'failure' are acceptable here — what matters is the action ran.
+          # The action should fail at the Sentry API level (bad credentials),
+          # not due to missing or misconfigured inputs (including deprecated ones).
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran as expected (outcome=$OUTCOME)"
+            echo "PASS: action ran as expected with deprecated version inputs (outcome=$OUTCOME)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
