@@ -1,4 +1,4 @@
-name: Test sourcemaps, dist, and url_prefix inputs
+name: Test working_directory input
 on:
   workflow_dispatch:
 jobs:
@@ -13,33 +13,36 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create a fake source map file for testing
+      - name: Create a working directory with a git repo for testing
         run: |
-          mkdir -p /tmp/sourcemaps
-          echo '{"version":3,"sources":["app.js"],"mappings":""}' > /tmp/sourcemaps/app.js.map
+          mkdir -p /tmp/my-app
+          cd /tmp/my-app
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          echo "app" > README.md
+          git add README.md
+          git commit -m "Initial commit"
 
-      - name: Run Sentry Release action with sourcemaps, dist, and url_prefix
+      - name: Run Sentry Release action with working_directory
         id: action
         uses: .
         continue-on-error: true
         with:
-          release: "test-release-sourcemaps-1.0.0"
-          sourcemaps: "/tmp/sourcemaps"
-          dist: "42"
-          url_prefix: "~/static/js"
-          inject: "false"
+          release: "test-release-workdir-1.0.0"
+          working_directory: "/tmp/my-app"
           finalize: "true"
           disable_telemetry: "true"
           set_commits: "skip"
 
-      - name: Assert action was invoked with sourcemaps, dist, and url_prefix
+      - name: Assert action was invoked with working_directory
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "action outcome: $OUTCOME"
           # The action should be invoked (success or failure due to fake credentials).
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action was invoked with sourcemaps, dist, and url_prefix (outcome=$OUTCOME)"
+            echo "PASS: action was invoked with working_directory (outcome=$OUTCOME)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1

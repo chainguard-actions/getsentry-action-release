@@ -1,4 +1,4 @@
-name: Test sourcemaps, dist, and url_prefix inputs
+name: Test deprecated version and version_prefix inputs
 on:
   workflow_dispatch:
 jobs:
@@ -13,33 +13,25 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create a fake source map file for testing
-        run: |
-          mkdir -p /tmp/sourcemaps
-          echo '{"version":3,"sources":["app.js"],"mappings":""}' > /tmp/sourcemaps/app.js.map
-
-      - name: Run Sentry Release action with sourcemaps, dist, and url_prefix
+      - name: Run Sentry Release action with deprecated version and version_prefix inputs
         id: action
         uses: .
         continue-on-error: true
         with:
-          release: "test-release-sourcemaps-1.0.0"
-          sourcemaps: "/tmp/sourcemaps"
-          dist: "42"
-          url_prefix: "~/static/js"
-          inject: "false"
+          version: "1.2.3"
+          version_prefix: "myapp@"
           finalize: "true"
           disable_telemetry: "true"
           set_commits: "skip"
 
-      - name: Assert action was invoked with sourcemaps, dist, and url_prefix
+      - name: Assert action was invoked with version and version_prefix
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "action outcome: $OUTCOME"
           # The action should be invoked (success or failure due to fake credentials).
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action was invoked with sourcemaps, dist, and url_prefix (outcome=$OUTCOME)"
+            echo "PASS: action was invoked with version and version_prefix (outcome=$OUTCOME)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
