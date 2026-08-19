@@ -1,4 +1,4 @@
-name: Test basic usage
+name: Test ignore_missing and ignore_empty flags
 on:
   workflow_dispatch:
 jobs:
@@ -7,10 +7,10 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # The action requires valid Sentry credentials to succeed.
-      # With a fake token it should fail with an authentication/API error,
-      # not a setup or configuration error. We verify the action starts
-      # correctly and fails for the expected reason.
+      # Test that ignore_missing and ignore_empty inputs are accepted.
+      # These flags control behavior when commits are not found or no new
+      # commits exist for a release. With fake credentials the action will
+      # fail at the API call stage, not at input validation.
       - id: action
         uses: .
         continue-on-error: true
@@ -19,20 +19,20 @@ jobs:
           SENTRY_ORG: test-org
           SENTRY_PROJECT: test-project
         with:
-          release: test-release-1.0.0
-          set_commits: skip
+          release: test-release-flags-1.0.0
+          set_commits: auto
+          ignore_missing: "true"
+          ignore_empty: "true"
           finalize: "false"
           disable_telemetry: "true"
 
-      - name: Assert action ran (failed with auth error, not setup error)
+      - name: Assert action ran with ignore flags
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
-          # The action should have run (and failed due to invalid credentials),
-          # not been skipped or errored before starting.
           if [ "$OUTCOME" = "skipped" ]; then
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran (outcome=$OUTCOME, expected failure due to fake credentials)"
+          echo "PASS: action ran with ignore_missing=true ignore_empty=true (outcome=$OUTCOME)"

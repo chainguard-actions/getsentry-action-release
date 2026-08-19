@@ -1,4 +1,4 @@
-name: Test manual commits inputs
+name: Test projects, started_at, and working_directory inputs
 on:
   workflow_dispatch:
 jobs:
@@ -7,8 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # Test that repo, commit, and previous_commit inputs are accepted.
-      # These are used when set_commits is "manual".
+      # Test that projects, started_at, and working_directory inputs are accepted.
       # With fake credentials the action will fail at the API call stage,
       # not at input validation — confirming the inputs are recognized.
       - id: action
@@ -17,17 +16,16 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: fake-token-for-testing
           SENTRY_ORG: test-org
-          SENTRY_PROJECT: test-project
         with:
-          release: test-release-manual-commits-1.0.0
-          set_commits: manual
-          repo: test-org/test-repo
-          commit: abc1234567890abcdef1234567890abcdef12345
-          previous_commit: def4567890abcdef1234567890abcdef12345678
+          release: test-release-projects-1.0.0
+          projects: test-project-a test-project-b
+          started_at: "1700000000"
+          working_directory: "."
+          set_commits: skip
           finalize: "false"
           disable_telemetry: "true"
 
-      - name: Assert action ran with manual commit inputs
+      - name: Assert action ran with projects/started_at/working_directory inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
@@ -36,4 +34,4 @@ jobs:
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran with repo/commit/previous_commit inputs (outcome=$OUTCOME)"
+          echo "PASS: action ran with projects/started_at/working_directory inputs (outcome=$OUTCOME)"

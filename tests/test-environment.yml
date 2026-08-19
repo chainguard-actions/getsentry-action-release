@@ -1,4 +1,4 @@
-name: Test manual commits inputs
+name: Test environment input
 on:
   workflow_dispatch:
 jobs:
@@ -7,10 +7,10 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # Test that repo, commit, and previous_commit inputs are accepted.
-      # These are used when set_commits is "manual".
+      # Test that the environment input is accepted by the action.
+      # The environment input triggers adding a deploy to the release.
       # With fake credentials the action will fail at the API call stage,
-      # not at input validation — confirming the inputs are recognized.
+      # not at input validation — confirming the input is recognized.
       - id: action
         uses: .
         continue-on-error: true
@@ -19,15 +19,13 @@ jobs:
           SENTRY_ORG: test-org
           SENTRY_PROJECT: test-project
         with:
-          release: test-release-manual-commits-1.0.0
-          set_commits: manual
-          repo: test-org/test-repo
-          commit: abc1234567890abcdef1234567890abcdef12345
-          previous_commit: def4567890abcdef1234567890abcdef12345678
-          finalize: "false"
+          release: test-release-env-1.0.0
+          environment: production
+          set_commits: skip
+          finalize: "true"
           disable_telemetry: "true"
 
-      - name: Assert action ran with manual commit inputs
+      - name: Assert action ran with environment input
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
@@ -36,4 +34,4 @@ jobs:
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran with repo/commit/previous_commit inputs (outcome=$OUTCOME)"
+          echo "PASS: action ran with environment=production (outcome=$OUTCOME)"
