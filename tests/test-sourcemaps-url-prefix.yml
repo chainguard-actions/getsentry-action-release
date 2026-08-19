@@ -1,4 +1,4 @@
-name: Test manual set_commits mode
+name: Test sourcemaps, url_prefix, and working_directory inputs
 on:
   workflow_dispatch:
 jobs:
@@ -10,15 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Get current and previous commit SHAs
-        id: commits
+      - name: Create a fake source map for testing
         run: |
-          CURRENT=$(git rev-parse HEAD)
-          PREVIOUS=$(git rev-parse HEAD~1 2>/dev/null || echo "$CURRENT")
-          echo "current=$CURRENT" >> $GITHUB_OUTPUT
-          echo "previous=$PREVIOUS" >> $GITHUB_OUTPUT
-          echo "current commit: $CURRENT"
-          echo "previous commit: $PREVIOUS"
+          mkdir -p /tmp/sourcemaps
+          echo '{"version":3,"sources":["app.js"],"mappings":""}' > /tmp/sourcemaps/app.js.map
 
       - id: action
         uses: .
@@ -28,21 +23,23 @@ jobs:
           SENTRY_ORG: dummy-org
           SENTRY_PROJECT: dummy-project
         with:
-          release: test-release-manual-commits-1.0.0
+          release: test-release-3.0.0
+          sourcemaps: "/tmp/sourcemaps"
+          url_prefix: "~/static/js"
+          working_directory: "${{ github.workspace }}"
+          inject: "false"
           finalize: "false"
-          set_commits: manual
-          repo: ${{ github.repository }}
-          commit: ${{ steps.commits.outputs.current }}
-          previous_commit: ${{ steps.commits.outputs.previous }}
+          set_commits: skip
           disable_telemetry: "true"
 
-      - name: Assert action ran with manual set_commits
+      - name: Assert action ran with sourcemaps, url_prefix, working_directory inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "action outcome: $OUTCOME"
+          # The action should either succeed or fail with an API error (not a setup/input error)
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran with manual set_commits, outcome: $OUTCOME"
+            echo "PASS: action ran and produced an outcome: $OUTCOME"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1

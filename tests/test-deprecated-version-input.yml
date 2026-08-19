@@ -1,4 +1,4 @@
-name: Test basic usage with mock
+name: Test deprecated version input backward compatibility
 on:
   workflow_dispatch:
 jobs:
@@ -15,24 +15,24 @@ jobs:
       - id: action
         uses: .
         with:
-          release: "1.0.0-test"
+          version: "4.0.0-legacy"
           finalize: "false"
           set_commits: "skip"
           disable_telemetry: "true"
 
-      - name: Assert release output
+      - name: Assert release output uses deprecated version input
         env:
           RELEASE_OUT: ${{ steps.action.outputs.release }}
           VERSION_OUT: ${{ steps.action.outputs.version }}
         run: |
           echo "release output: $RELEASE_OUT"
           echo "version output: $VERSION_OUT"
-          if [ "$RELEASE_OUT" != "1.0.0-test" ]; then
-            echo "FAIL: expected release output '1.0.0-test', got '$RELEASE_OUT'"
+          if [ "$RELEASE_OUT" != "4.0.0-legacy" ]; then
+            echo "FAIL: expected release output '4.0.0-legacy', got '$RELEASE_OUT'"
             exit 1
           fi
-          if [ "$VERSION_OUT" != "1.0.0-test" ]; then
-            echo "FAIL: expected version output '1.0.0-test', got '$VERSION_OUT'"
+          if [ "$VERSION_OUT" != "4.0.0-legacy" ]; then
+            echo "FAIL: expected version output '4.0.0-legacy', got '$VERSION_OUT'"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: deprecated version input works correctly"

@@ -1,4 +1,4 @@
-name: Test basic usage with mock
+name: Test with environment deploy
 on:
   workflow_dispatch:
 jobs:
@@ -15,24 +15,19 @@ jobs:
       - id: action
         uses: .
         with:
-          release: "1.0.0-test"
-          finalize: "false"
+          release: "3.0.0-staging"
+          environment: "staging"
+          finalize: "true"
           set_commits: "skip"
           disable_telemetry: "true"
 
-      - name: Assert release output
+      - name: Assert release output with environment
         env:
           RELEASE_OUT: ${{ steps.action.outputs.release }}
-          VERSION_OUT: ${{ steps.action.outputs.version }}
         run: |
           echo "release output: $RELEASE_OUT"
-          echo "version output: $VERSION_OUT"
-          if [ "$RELEASE_OUT" != "1.0.0-test" ]; then
-            echo "FAIL: expected release output '1.0.0-test', got '$RELEASE_OUT'"
+          if [ "$RELEASE_OUT" != "3.0.0-staging" ]; then
+            echo "FAIL: expected release output '3.0.0-staging', got '$RELEASE_OUT'"
             exit 1
           fi
-          if [ "$VERSION_OUT" != "1.0.0-test" ]; then
-            echo "FAIL: expected version output '1.0.0-test', got '$VERSION_OUT'"
-            exit 1
-          fi
-          echo "PASS"
+          echo "PASS: action succeeded with environment input"

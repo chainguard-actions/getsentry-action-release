@@ -1,4 +1,4 @@
-name: Test basic usage with mock
+name: Test refs/tags prefix stripping
 on:
   workflow_dispatch:
 jobs:
@@ -15,24 +15,18 @@ jobs:
       - id: action
         uses: .
         with:
-          release: "1.0.0-test"
+          release: "refs/tags/v5.0.0"
           finalize: "false"
           set_commits: "skip"
           disable_telemetry: "true"
 
-      - name: Assert release output
+      - name: Assert refs/tags prefix is stripped from release
         env:
           RELEASE_OUT: ${{ steps.action.outputs.release }}
-          VERSION_OUT: ${{ steps.action.outputs.version }}
         run: |
           echo "release output: $RELEASE_OUT"
-          echo "version output: $VERSION_OUT"
-          if [ "$RELEASE_OUT" != "1.0.0-test" ]; then
-            echo "FAIL: expected release output '1.0.0-test', got '$RELEASE_OUT'"
+          if [ "$RELEASE_OUT" != "v5.0.0" ]; then
+            echo "FAIL: expected release output 'v5.0.0' (with refs/tags/ stripped), got '$RELEASE_OUT'"
             exit 1
           fi
-          if [ "$VERSION_OUT" != "1.0.0-test" ]; then
-            echo "FAIL: expected version output '1.0.0-test', got '$VERSION_OUT'"
-            exit 1
-          fi
-          echo "PASS"
+          echo "PASS: refs/tags/ prefix correctly stripped"
