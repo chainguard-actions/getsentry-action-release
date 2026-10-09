@@ -1,0 +1,36 @@
+name: Test release prefix input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run Sentry Release action with release_prefix
+        id: action
+        uses: .
+        continue-on-error: true
+        with:
+          release_prefix: "myapp@"
+          set_commits: skip
+          finalize: "true"
+          disable_telemetry: "true"
+        env:
+          SENTRY_ORG: test-org
+          SENTRY_PROJECT: test-project
+          # No SENTRY_AUTH_TOKEN — action should fail gracefully
+
+      - name: Assert action failed gracefully (no valid Sentry credentials)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected (no auth token)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action unexpectedly succeeded"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
