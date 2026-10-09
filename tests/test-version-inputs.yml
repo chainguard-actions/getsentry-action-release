@@ -20,18 +20,17 @@ jobs:
         with:
           version: "1.2.3"
           version_prefix: "myapp@"
-          finalize: "true"
+          finalize: "false"
+          set_commits: skip
           disable_telemetry: "true"
-          set_commits: "skip"
 
-      - name: Assert action was invoked with version and version_prefix
+      - name: Assert action was invoked with version and version_prefix inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "action outcome: $OUTCOME"
-          # The action should be invoked (success or failure due to fake credentials).
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action was invoked with version and version_prefix (outcome=$OUTCOME)"
+            echo "PASS: action was invoked with version/version_prefix inputs (outcome=$OUTCOME)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
