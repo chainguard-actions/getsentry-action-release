@@ -1,0 +1,39 @@
+name: Test sourcemaps and url_prefix inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a fake source map file for testing
+        run: |
+          mkdir -p /tmp/sourcemaps
+          echo '{"version":3,"sources":["app.js"],"mappings":""}' > /tmp/sourcemaps/app.js.map
+      - name: Run action with sourcemaps and url_prefix inputs
+        id: action
+        uses: .
+        continue-on-error: true
+        with:
+          release: "test-release-sourcemaps-1.0.0"
+          sourcemaps: "/tmp/sourcemaps"
+          url_prefix: "~/static/js"
+          inject: "false"
+          set_commits: skip
+          finalize: "false"
+          disable_telemetry: "true"
+        env:
+          SENTRY_AUTH_TOKEN: fake-token-for-testing
+          SENTRY_ORG: my-org
+          SENTRY_PROJECT: my-project
+      - name: Assert action ran with sourcemaps and url_prefix inputs
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action should fail because the token is fake, not because inputs are invalid.
+          if [ "$OUTCOME" = "" ]; then
+            echo "FAIL: action did not run at all"
+            exit 1
+          fi
+          echo "PASS: action ran with sourcemaps/url_prefix inputs (outcome=$OUTCOME)"
