@@ -16,11 +16,11 @@ Action **getsentry--action-release/v3.7.0** was hardened automatically. 1 findin
 
 ### unpinned-uses (severity: high)
 
-The action.yml references a Docker image using a mutable tag (`3.7.0`) instead of an immutable SHA digest. This means the image could be replaced with a different (potentially malicious) version without changing the workflow. The reference `docker://ghcr.io/getsentry/action-release-image:3.7.0` should be pinned to a SHA digest, e.g. `docker://ghcr.io/getsentry/action-release-image@sha256:<64-hex-char-digest>`. The two `uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f` references are correctly pinned.
+The composite action references a Docker image using a mutable version tag (`docker://ghcr.io/getsentry/action-release-image:3.7.0`) instead of an immutable SHA digest. This means the image could be silently replaced with a different (potentially malicious) version without any change to the action.yml. It should be pinned to a specific SHA digest, e.g. `docker://ghcr.io/getsentry/action-release-image@sha256:<64-hex-char-digest>`.
 
 Locations:
 
-- `action.yml:121`
+- `action.yml:131`
 
 ## Iteration Notes
 
@@ -30,5 +30,5 @@ Locations:
 
 **Notes:**
 
-Pinned the Docker image reference `docker://ghcr.io/getsentry/action-release-image:3.7.0` to an immutable SHA digest. The updated reference is `docker://ghcr.io/getsentry/action-release-image:3.7.0@sha256:3d8999c5962c55691cf509b9cc2ebd9d889a398f58a46337992aab4f1645ec7b`. The `docker://` scheme and tag are preserved for readability and compatibility. The two `actions/setup-node` references were already correctly pinned and required no changes.
+Pinned the Docker image reference at action.yml line 131 from `docker://ghcr.io/getsentry/action-release-image:3.7.0` to `docker://ghcr.io/getsentry/action-release-image:3.7.0@sha256:3d8999c5962c55691cf509b9cc2ebd9d889a398f58a46337992aab4f1645ec7b`. The docker:// scheme and tag are preserved inline with the digest appended.
 

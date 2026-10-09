@@ -6,34 +6,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      # Test that repo, commit, and previous_commit inputs are accepted.
-      # These are used when set_commits is "manual".
-      # With fake credentials the action will fail at the API call stage,
-      # not at input validation — confirming the inputs are recognized.
+      - name: Get commit SHAs for manual commits
+        id: shas
+        run: |
+          CURRENT=$(git rev-parse HEAD)
+          PREVIOUS=$(git rev-parse HEAD~1 2>/dev/null || echo "$CURRENT")
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+          echo "previous=$PREVIOUS" >> $GITHUB_OUTPUT
       - id: action
         uses: .
         continue-on-error: true
         env:
-          SENTRY_AUTH_TOKEN: fake-token-for-testing
-          SENTRY_ORG: test-org
-          SENTRY_PROJECT: test-project
+          SENTRY_AUTH_TOKEN: fake-token-for-test
+          SENTRY_ORG: fake-org
+          SENTRY_PROJECT: fake-project
         with:
           release: test-release-manual-commits-1.0.0
           set_commits: manual
-          repo: test-org/test-repo
-          commit: abc1234567890abcdef1234567890abcdef12345
-          previous_commit: def4567890abcdef1234567890abcdef12345678
-          finalize: "false"
-          disable_telemetry: "true"
-
-      - name: Assert action ran with manual commit inputs
+          repo: ${{ github.repository }}
+          commit: ${{ steps.shas.outputs.current }}
+          previous_commit: ${{ steps.shas.outputs.previous }}
+          finalize: false
+          disable_telemetry: true
+      - name: Assert action ran (manual commits inputs accepted)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
-          if [ "$OUTCOME" = "skipped" ]; then
-            echo "FAIL: action was skipped unexpectedly"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected without valid Sentry credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
           fi
-          echo "PASS: action ran with repo/commit/previous_commit inputs (outcome=$OUTCOME)"
