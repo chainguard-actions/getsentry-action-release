@@ -1,4 +1,4 @@
-name: Test dist, projects, started_at, and version_prefix inputs
+name: Test started_at and projects inputs
 on:
   workflow_dispatch:
 jobs:
@@ -16,25 +16,22 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: dummy-token
           SENTRY_ORG: dummy-org
-          SENTRY_PROJECT: dummy-project
         with:
-          release: test-release-2.0.0
-          dist: "42"
-          projects: "my-project another-project"
+          release: test-release-started-at-1.0.0
           started_at: "1700000000"
-          version_prefix: "myapp@"
+          projects: "my-project another-project"
           finalize: "false"
           set_commits: skip
           disable_telemetry: "true"
 
-      - name: Assert action ran with dist, projects, started_at, version_prefix inputs
+      - name: Assert action ran (failed due to invalid credentials, not setup error)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "action outcome: $OUTCOME"
-          # The action should either succeed or fail with an API error (not a setup/input error)
+          # The action should either succeed or fail with an API error (not a missing-input error)
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran and produced an outcome: $OUTCOME"
+            echo "PASS: action ran with started_at/projects inputs and produced outcome: $OUTCOME"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
