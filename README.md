@@ -14,6 +14,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v3.6.1 | [`v3.6.1`](https://github.com/chainguard-actions/getsentry-action-release/tree/v3.6.1) | [`f71adb4`](https://github.com/getsentry/action-release/commit/f71adb49d4b2aeeda98052d3de234bbb0f3e03ab) |
 | v3.7.0 | [`v3.7.0`](https://github.com/chainguard-actions/getsentry-action-release/tree/v3.7.0) | [`ff07929`](https://github.com/getsentry/action-release/commit/ff07929a6537bac57790c3451cf4d364aca38528) |
 | v3.7.1 | [`v3.7.1`](https://github.com/chainguard-actions/getsentry-action-release/tree/v3.7.1) | [`6fb9aea`](https://github.com/getsentry/action-release/commit/6fb9aeade7061441cf3864e34fbe11a1457ad7dc) |
+| v3.7.2 | [`v3.7.2`](https://github.com/chainguard-actions/getsentry-action-release/tree/v3.7.2) | [`e6703d0`](https://github.com/getsentry/action-release/commit/e6703d0b00208e0b3687ba660d18ab5af7892821) |
 
 ## Privacy
 
