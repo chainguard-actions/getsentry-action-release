@@ -4,9 +4,13 @@
   "version": "v3.7.1",
   "commit_sha": "6fb9aeade7061441cf3864e34fbe11a1457ad7dc",
   "url": "https://github.com/getsentry/action-release",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
   "harden_agent_version": "2",
-  "dependency_fingerprint": "sha256:e516a5ddec41337306ef4fe3e7f5711152ebad0c79704e93ec3a2dfc26f717cc"
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/getsentry/action-release/v3.7.1/sha256-db17349396c78473426dd24d20f3d0a981220d97c4769fcbea811b87b119d6e5.tar.gz",
+    "sha256": "db17349396c78473426dd24d20f3d0a981220d97c4769fcbea811b87b119d6e5",
+    "size_bytes": 874030
+  }
 }
